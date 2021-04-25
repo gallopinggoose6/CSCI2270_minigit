@@ -12,7 +12,12 @@ enum userActions {
 	Unknown,
 	Init,
 	Help,
-	Exit
+	Exit,
+	Add,
+	Remove,
+	Commit,
+	Checkout,
+	Status
 };
 
 userActions getAction(std::string input) {
@@ -20,6 +25,11 @@ userActions getAction(std::string input) {
 	if(input == "help") return Help;
 	if(input == "exit") return Exit;
 	if(input == "quit") return Exit;
+	if(input == "add") return Add;
+	if(input == "status") return Status;
+	if(input == "remove") return Remove;
+	if(input == "commit") return Commit;
+	if(input == "checkout") return Checkout;
 	if(input == "q") return Exit;
 	return Unknown;
 }
@@ -32,7 +42,7 @@ int main(int argc, char* argv[]) {
 	else std::cout << "No existing repository has been found and initialized\n";
 	while(1) {
 		std::string user_option;
-		std::cin >> user_option;
+		std::getline(std::cin, user_option);
 		switch (getAction(user_option)) {
 			case Init:
 				if (!res) res = init();
@@ -43,6 +53,10 @@ int main(int argc, char* argv[]) {
 				break;
 			case Exit:
 				return 0;
+			case Add:
+				if(res) res->Add();
+				else "Please initialize a repository first\n";
+				break;
 			default:
 				std::cout << "Unrecognized command, if necessary please type 'help' for more options\n";
 				break;

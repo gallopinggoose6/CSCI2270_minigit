@@ -3,20 +3,22 @@
 struct singlyNode {
 	std::string fileName;
 	std::string fileVersion;
-	singlyNode *next;
+	singlyNode *next = nullptr;
 };
 
 struct doublyNode {
-	int commitnumber;
-	singlyNode *head;
-	doublyNode *previous;
-	doublyNode *next;
+	int commitNumber;
+	singlyNode *head = nullptr;
+	doublyNode *previous = nullptr;
+	doublyNode *next = nullptr;
 };
 
 class Repository {
 private:
-	doublyNode commits;
+	doublyNode* commits;
 public:
 	Repository();
+	~Repository();
+	void Add();
 	Repository(std::string existing_path);
 };
