@@ -2,7 +2,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "Repository.h"
+#include "miniGit.hpp"
 
 Repository* getRepository();
 Repository* init();
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 	Repository *res = getRepository();
 	std::string welcome = "Welcome to minigit!\nWritten by Tyler Renken for CSCI2270 at the Univeristy of Colorado\nTo get started, type 'help' for a list of options\n";
 	std::cout << welcome;
-	if (res) std::cout << "Existing repository has been found and initialized\n";
+	if (res) std::cout << "Existing repository has been found and initialized\n"; //Skeleton framework for adding Serialization and Deserialization later
 	else std::cout << "No existing repository has been found and initialized\n";
 	while(1) {
 		std::string user_option;
@@ -55,7 +55,23 @@ int main(int argc, char* argv[]) {
 				return 0;
 			case Add:
 				if(res) res->Add();
-				else "Please initialize a repository first\n";
+				else std::cout << "Please initialize a repository first\n";
+				break;
+			case Status:
+				if(res) res->Status();
+				else std::cout << "Please initialize a repository first\n";
+				break;
+			case Remove:
+				if(res) res->Remove();
+				else std::cout << "Please initialize a repository first\n";
+				break;
+			case Commit:
+				if(res) res->Commit();
+				else std::cout << "Please initialize a repository first\n";
+				break;
+			case Checkout:
+				if(res) res->Checkout();
+				else std::cout << "Please initialize a repository first\n";
 				break;
 			default:
 				std::cout << "Unrecognized command, if necessary please type 'help' for more options\n";
@@ -68,7 +84,7 @@ int main(int argc, char* argv[]) {
 Repository* getRepository() {
 	struct stat directory;
 	if (!stat(".minigit", &directory)) {
-		return new Repository(".minigit/.REPO");
+		return new Repository(".minigit/.REPO"); //Uses existing repository (not fully implemented in Phase 1
 	}
 	return nullptr;
 	
