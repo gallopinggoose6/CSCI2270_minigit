@@ -196,5 +196,31 @@ void Repository::Checkout() {
 			std::cout << "invalid option, try again\n";
 		} while(1);
 	}
-
+	int versionNum;
+	std::cout << "Please enter a commit number\n";
+	std::cin >> versionNum;
+	std::string buffer;
+	std::getline(std::cin, buffer);
+	doublyNode* dn = commits;
+	while(dn) {
+		if (dn->commitNumber == versionNum) break;
+		dn = dn->previous;
+	}
+	if (!dn) {
+		std::cout << "invalid commitnumber";
+		return;
+	}
+	n = dn->head;
+	while (n) {
+		std::cout << "Restoring " + n->fileName << "\n";
+		std::fstream restore;
+		std::fstream local;
+		restore.open(".minigit/" + n->fileVersion, std::fstream::in);
+		local.open(n->fileName, std::fstream::out);
+		std::string line;
+		while (getline(restore, line)) {
+			local << line << "\n";
+		}
+		n = n->next;
+	}
 }
