@@ -15,6 +15,9 @@ Repository::Repository(std::string existing_path) { //Skeleton framework for bui
 	if (f.fail()) {	//guaranteed to happen until Phase 2 implementation
 		commits = new doublyNode;
 		commits->commitNumber = 0;
+	} else {
+		f.close();
+		readCommits(existing_path);
 	}
 }
 
@@ -131,6 +134,8 @@ void Repository::Commit() {
 	newn->previous = commits;
 	commits->next = newn;
 	commits = newn;
+
+	recordCommits();
 }
 int Repository::checkChanges(singlyNode* n) {
 	std::fstream file;
@@ -214,4 +219,69 @@ void Repository::Checkout() {
 		}
 		n = n->next;	//traverse all singlyNodes
 	}
+}
+
+void Repository::recordCommits(){	//Record linked list structure to file
+	std::fstream outfile;
+	outfile.open(".minigit/.REPO", std::fstream::out);	//write to file
+	doublyNode* prev = nullptr;
+	doublyNode* d = commits;
+	while(d) {			//traverse back to the beginning of the commit list
+		prev = d;
+		d = d->previous;
+	}
+	while(prev->next) {		//write out (ignore persistent node)
+		outfile << "D;\n";	//write out a new doublyNode
+		singlyNode *s = prev->head;
+		while(s) {		//write out a new singlyNode
+			outfile << "S;" << s->versionNumber << ";" << s->fileName << ";" << s->fileVersion << std::endl;
+			s = s->next;
+		}
+		prev = prev->next;
+	}
+	outfile.close();
+}
+
+void Repository::readCommits(std::string path){	//Read linked list structure from file
+	std::fstream inFile;
+	inFile.open(path, std::fstream::in);
+	std::string line;
+	int currentNode = 0;
+	doublyNode* currentD = commits;
+	while(getline(inFile, line)) {		//read all lines
+		if (line == "D;") {		//if a D is read, create a new persistent doublyNode
+			doublyNode* newn = new doublyNode;
+			newn->previous = currentD;
+			newn->commitNumber = currentNode;
+			++currentNode;
+			if (currentD) currentD->next = newn;
+			commits = newn;
+			currentD = newn;
+		}
+		else {				//if an S is read, add singlyNode to current doublyNode
+			int tracker = 0;
+			unsigned int semicolons[2];
+			for (unsigned int i = 2; i < line.size(); ++i) {	//split text
+				if (line[i] == ';') {
+					semicolons[tracker] = i;
+					++tracker;
+				}
+			}
+			singlyNode* newn = new singlyNode;	//create new singlyNode
+			newn->versionNumber = std::stoi(line.substr(2, semicolons[0]-2));
+			newn->fileName = line.substr(semicolons[0] + 1, semicolons[1]-semicolons[0] - 1);
+			newn->fileVersion = line.substr(semicolons[1] + 1);
+			if (currentD->head) {	//traverse to end of the list and add singlyNode to single List
+				singlyNode* traverse = currentD->head;
+				while(traverse->next) traverse = traverse->next;
+				traverse->next = newn;
+			} else currentD->head = newn;
+		}
+	}
+	doublyNode* workingNode = new doublyNode;	//Add the persistent node
+	workingNode->commitNumber = commits->commitNumber + 1;
+        nodeCopy(commits, workingNode);
+        workingNode->previous = commits;
+        commits->next = workingNode;
+        commits = workingNode;
 }

@@ -19,6 +19,8 @@ private:
 	doublyNode* commits; //keeps track of the current uncommited link in the list
 	void nodeCopy(doublyNode* source, doublyNode* dest);	//deep copy
 	int checkChanges(singlyNode* n);	//scan local file and compare with committed file
+	void recordCommits(); //save information to file.
+	void readCommits(std::string path); //read information from file.
 public:
 	Repository();	//Constructor for new Repository
 	~Repository();	//Deconstructor
